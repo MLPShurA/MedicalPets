@@ -6,6 +6,9 @@ from db import get_connection
 def formulario_nuevo_historial(historial_data=None):
     st.subheader("Registro de Historial Clínico")
 
+    if 'historial_registrado_exito' not in st.session_state:
+        st.session_state['historial_registrado_exito'] = False
+
     # Buscar lista de mascotas
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -42,7 +45,9 @@ def formulario_nuevo_historial(historial_data=None):
 
     # Información de la mascota seleccionada
     mascota_info = next(m for m in mascotas if m['id'] == id_mascota)
-    st.info(f"📋 **Mascota seleccionada:** {mascota_info['nombre']} - {mascota_info['raza']} - {mascota_info['sexo']}")
+    st.markdown(f'''<div style="background:#e7f3fe; border-left:6px solid #2196F3; padding:12px 18px; border-radius:8px; margin-bottom:10px;">
+        <span style="color:#111; font-size:1.1rem; font-weight:bold;">📋 Mascota seleccionada: {mascota_info["nombre"]} - {mascota_info["raza"]} - {mascota_info["sexo"]}</span>
+    </div>''', unsafe_allow_html=True)
 
     # Campos del historial
     fecha = st.date_input("Fecha de consulta", value=historial_data.get('fecha') if historial_data else date.today())
@@ -184,93 +189,101 @@ def formulario_nuevo_historial(historial_data=None):
                     st.session_state.tratamientos.pop(i)
                     st.rerun()
     else:
-        st.info("No hay tratamientos registrados")
+        st.markdown('''<div style="background:#e7f3fe; border-left:6px solid #2196F3; padding:12px 18px; border-radius:8px; margin-bottom:10px;">
+            <span style="color:#111; font-size:1.1rem; font-weight:bold;">No hay tratamientos registrados</span>
+        </div>''', unsafe_allow_html=True)
 
     # Botones de acción
     col1, col2, col3 = st.columns([1, 1, 1])
-    
-    with col1:
-        if st.button("💾 Guardar Historial"):
-            if not motivo_consulta.strip():
-                st.error("❌ El motivo de consulta es obligatorio")
-                return
-            
-            try:
-                conn = get_connection()
-                cursor = conn.cursor()
-                
-                if historial_data:  # Editar
-                    # Actualizar historial clínico
-                    query_historial = """
-                        UPDATE historial_clinico 
-                        SET id_mascota=%s, fecha=%s, motivo_consulta=%s, sintomas=%s, 
-                            antecedentes=%s, diagnostico=%s, observaciones=%s, peso=%s
-                        WHERE id=%s
-                    """
-                    cursor.execute(query_historial, (
-                        id_mascota, fecha, motivo_consulta, sintomas, antecedentes,
-                        diagnostico, observaciones, peso_input, historial_data['id']
-                    ))
-                    
-                    # Eliminar tratamientos anteriores
-                    cursor.execute("DELETE FROM tratamientos WHERE id_historial=%s", (historial_data['id'],))
-                    
-                    st.success("✅ Historial actualizado exitosamente.")
-                    
-                else:  # Nuevo
-                    # Insertar historial clínico
-                    query_historial = """
-                        INSERT INTO historial_clinico 
-                        (id_mascota, fecha, motivo_consulta, sintomas, antecedentes, diagnostico, observaciones, peso)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                    """
-                    cursor.execute(query_historial, (
-                        id_mascota, fecha, motivo_consulta, sintomas, antecedentes,
-                        diagnostico, observaciones, peso_input
-                    ))
-                    historial_id = cursor.lastrowid
-                    
-                    st.success("✅ Historial registrado exitosamente.")
-                
-                # Insertar tratamientos
-                for tratamiento in st.session_state.tratamientos:
-                    query_tratamiento = """
-                        INSERT INTO tratamientos 
-                        (id_historial, nombre_tratamiento, dosis, frecuencia, duracion, observaciones, fecha_inicio, fecha_fin)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                    """
-                    cursor.execute(query_tratamiento, (
-                        historial_data['id'] if historial_data else historial_id,
-                        tratamiento['nombre_tratamiento'],
-                        tratamiento['dosis'],
-                        tratamiento['frecuencia'],
-                        tratamiento['duracion'],
-                        tratamiento['observaciones'],
-                        tratamiento['fecha_inicio'],
-                        tratamiento['fecha_fin']
-                    ))
-                
-                conn.commit()
-                cursor.close()
-                conn.close()
-                
-                # Limpiar estado
-                st.session_state['mostrar_formulario_historial'] = False
+
+    if st.session_state['historial_registrado_exito']:
+        st.success("")
+        st.markdown('<div style="color:#111; font-size:1.1rem; font-weight:bold;">Historial médico creado exitosamente</div>', unsafe_allow_html=True)
+        col_a, col_b = st.columns(2)
+        with col_a:
+            if st.button("Registrar otro historial", key="registrar_otro_historial_btn"):
+                st.session_state['historial_registrado_exito'] = False
                 st.session_state['historial_editar'] = None
                 st.session_state.tratamientos = []
                 st.rerun()
-                
-            except Exception as e:
-                st.error(f"❌ Error al guardar: {e}")
-    
-    with col2:
-        if st.button("🔄 Limpiar"):
-            st.session_state.tratamientos = []
-            st.rerun()
-    
-    with col3:
-        if st.button("⬅️ Volver al listado"):
-            st.session_state['mostrar_formulario_historial'] = False
-            st.session_state['historial_editar'] = None
-            st.session_state.tratamientos = []
-            st.rerun() 
+        with col_b:
+            if st.button("Volver al listado", key="volver_listado_historial_btn"):
+                st.session_state['mostrar_formulario_historial'] = False
+                st.session_state['historial_editar'] = None
+                st.session_state['historial_registrado_exito'] = False
+                st.session_state.tratamientos = []
+                st.rerun()
+    else:
+        with col1:
+            if st.button("💾 Guardar"):
+                if not motivo_consulta.strip():
+                    if historial_data:
+                        st.markdown('''<div style="background:#fff3cd; border-left:6px solid #ffecb5; padding:12px 18px; border-radius:8px; margin-bottom:10px;">
+                            <span style="color:#111; font-size:1.1rem; font-weight:bold;">Error al editar historial médico</span>
+                        </div>''', unsafe_allow_html=True)
+                    else:
+                        st.markdown('''<div style="background:#fff3cd; border-left:6px solid #ffecb5; padding:12px 18px; border-radius:8px; margin-bottom:10px;">
+                            <span style="color:#111; font-size:1.1rem; font-weight:bold;">Error al crear historial médico, revise los campos</span>
+                        </div>''', unsafe_allow_html=True)
+                    return
+                try:
+                    conn = get_connection()
+                    cursor = conn.cursor()
+                    if historial_data:  # Editar
+                        query_historial = """
+                            UPDATE historial_clinico 
+                            SET id_mascota=%s, fecha=%s, motivo_consulta=%s, sintomas=%s, 
+                                antecedentes=%s, diagnostico=%s, observaciones=%s, peso=%s
+                            WHERE id=%s
+                        """
+                        cursor.execute(query_historial, (
+                            id_mascota, fecha, motivo_consulta, sintomas, antecedentes,
+                            diagnostico, observaciones, peso_input, historial_data['id']
+                        ))
+                        cursor.execute("DELETE FROM tratamientos WHERE id_historial=%s", (historial_data['id'],))
+                        st.success("✅ Historial actualizado exitosamente.")
+                    else:  # Nuevo
+                        query_historial = """
+                            INSERT INTO historial_clinico 
+                            (id_mascota, fecha, motivo_consulta, sintomas, antecedentes, diagnostico, observaciones, peso)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        """
+                        cursor.execute(query_historial, (
+                            id_mascota, fecha, motivo_consulta, sintomas, antecedentes,
+                            diagnostico, observaciones, peso_input
+                        ))
+                        historial_id = cursor.lastrowid
+                        st.session_state['historial_registrado_exito'] = True
+                        st.success("")
+                        st.markdown('<div style="color:#111; font-size:1.1rem; font-weight:bold;">Historial médico creado exitosamente</div>', unsafe_allow_html=True)
+                    for tratamiento in st.session_state.tratamientos:
+                        query_tratamiento = """
+                            INSERT INTO tratamientos 
+                            (id_historial, nombre_tratamiento, dosis, frecuencia, duracion, observaciones, fecha_inicio, fecha_fin)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        """
+                        cursor.execute(query_tratamiento, (
+                            historial_data['id'] if historial_data else historial_id,
+                            tratamiento['nombre_tratamiento'],
+                            tratamiento['dosis'],
+                            tratamiento['frecuencia'],
+                            tratamiento['duracion'],
+                            tratamiento['observaciones'],
+                            tratamiento['fecha_inicio'],
+                            tratamiento['fecha_fin']
+                        ))
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                except Exception as e:
+                    st.error(f"❌ Error al guardar: {e}")
+        with col2:
+            if st.button("🔄 Limpiar"):
+                st.session_state.tratamientos = []
+                st.rerun()
+        with col3:
+            if st.button("⬅️ Volver al listado"):
+                st.session_state['mostrar_formulario_historial'] = False
+                st.session_state['historial_editar'] = None
+                st.session_state.tratamientos = []
+                st.rerun() 

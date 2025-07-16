@@ -143,7 +143,7 @@ def main():
     elif st.session_state['historial_confirmar_eliminar']:
         historial = st.session_state['historial_confirmar_eliminar']
         st.warning("")
-        st.markdown(f'<div style="color:#111; font-size:1.15rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">¿Estás seguro que deseas eliminar el historial de <b>{historial["mascota_nombre"]}</b> del {historial["fecha"]}?</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:#111; font-size:1.15rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">¿Está seguro que desea eliminar el historial médico de <b>{historial["mascota_nombre"]}</b> del {historial["fecha"]}?</div>', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             if st.button("❌ Cancelar"):
@@ -274,7 +274,7 @@ def main():
                                 st.write("❌ Sin tratamientos")
                         
                         with col5:
-                            if st.button("👁️", key=f"ver_{historial['id']}"):
+                            if st.button("👁️ Historial médico", key=f"ver_{historial['id']}"):
                                 st.session_state['historial_ver_detalle'] = historial['id']
                                 st.rerun()
                         
