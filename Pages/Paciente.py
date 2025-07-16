@@ -35,7 +35,7 @@ def main():
     elif st.session_state['mascota_confirmar_eliminar']:
         mascota = st.session_state['mascota_confirmar_eliminar']
         st.warning("")
-        st.markdown(f'<div style="color:#111; font-size:1.15rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">¿Estás seguro que deseas eliminar a la mascota <b>{mascota["nombre"]}</b>?</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:#111; font-size:1.15rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">¿Está seguro que deseas eliminar el paciente <b>{mascota["nombre"]}</b>?</div>', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             if st.button("❌ Cancelar"):

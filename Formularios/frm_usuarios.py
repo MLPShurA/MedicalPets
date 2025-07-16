@@ -17,22 +17,39 @@ def formulario_nuevo_usuario(usuario_data=None):
     if 'usuario_registrado_exito' not in st.session_state:
         st.session_state['usuario_registrado_exito'] = False
 
-    nombres = st.text_input("Nombres", value=usuario_data.get('nombres') if usuario_data else "")
-    apellidos = st.text_input("Apellidos", value=usuario_data.get('apellidos') if usuario_data else "")
-    cedula = st.text_input("Cédula", value=usuario_data.get('cedula') if usuario_data else "")
-    telefono = st.text_input("Teléfono", value=usuario_data.get('telefono') if usuario_data else "")
-    correo = st.text_input("Correo electrónico", value=usuario_data.get('correo_electronico') if usuario_data else "")
-    direccion = st.text_input("Dirección", value=usuario_data.get('direccion') if usuario_data else "")
-    rol = st.selectbox("Rol", ["paciente", "secretaria", "doctor", "veterinario"],
-                       index=["paciente", "secretaria", "doctor", "veterinario"].index(usuario_data.get('rol')) if usuario_data else 0)
+    if st.session_state['usuario_registrado_exito']:
+        st.success("")
+        st.markdown('<div style="color:#111; font-size:1.1rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">Usuario registrado exitosamente</div>', unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Registrar otro usuario", key="registrar_otro_usuario_btn"):
+                st.session_state['usuario_registrado_exito'] = False
+                st.session_state['usuario_editar'] = None
+                st.rerun()
+        with col2:
+            if st.button("Volver al listado", key="volver_listado_btn"):
+                st.session_state['mostrar_formulario_usuario'] = False
+                st.session_state['usuario_editar'] = None
+                st.session_state['usuario_registrado_exito'] = False
+                st.rerun()
+    else:
+        nombres = st.text_input("Nombres", value=usuario_data.get('nombres') if usuario_data else "")
+        apellidos = st.text_input("Apellidos", value=usuario_data.get('apellidos') if usuario_data else "")
+        cedula = st.text_input("Cédula", value=usuario_data.get('cedula') if usuario_data else "")
+        telefono = st.text_input("Teléfono", value=usuario_data.get('telefono') if usuario_data else "")
+        correo = st.text_input("Correo electrónico", value=usuario_data.get('correo_electronico') if usuario_data else "")
+        direccion = st.text_input("Dirección", value=usuario_data.get('direccion') if usuario_data else "")
+        rol = st.selectbox("Rol", ["paciente", "secretaria", "doctor", "veterinario"],
+                           index=["paciente", "secretaria", "doctor", "veterinario"].index(usuario_data.get('rol')) if usuario_data else 0)
 
-    if not st.session_state['usuario_registrado_exito']:
         if st.button("Guardar", key="guardar_usuario_btn"):
             if not nombres or not apellidos or not cedula or not correo:
                 st.warning("")
-                st.markdown('<div style="color:#111; font-size:1.1rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">Error al guardar usuario, revise los campos</div>', unsafe_allow_html=True)
+                if usuario_data:
+                    st.markdown('<div style="color:#111; font-size:1.1rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">Error al editar usuario</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<div style="color:#111; font-size:1.1rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">Error al guardar usuario, revise los campos</div>', unsafe_allow_html=True)
                 return
-
             try:
                 conn = get_connection()
                 cursor = conn.cursor()
@@ -78,21 +95,9 @@ def formulario_nuevo_usuario(usuario_data=None):
                 cursor.close()
                 conn.close()
 
-                # Ya no regresamos automáticamente al listado, solo mostramos el mensaje y permanecemos en el formulario
-                st.session_state['mostrar_formulario_usuario'] = False
-                st.session_state['usuario_editar'] = None
-                st.rerun()
-
             except Exception as e:
                 st.error(f"❌ Error: {e}")
 
-    if st.session_state['usuario_registrado_exito']:
-        if st.button("Volver al listado", key="volver_listado_btn"):
-            st.session_state['mostrar_formulario_usuario'] = False
-            st.session_state['usuario_editar'] = None
-            st.session_state['usuario_registrado_exito'] = False
-            st.rerun()
-    else:
         if st.button("Volver al listado", key="volver_listado_btn"):
             st.session_state['mostrar_formulario_usuario'] = False
             st.session_state['usuario_editar'] = None
