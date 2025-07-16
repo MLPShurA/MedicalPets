@@ -252,7 +252,7 @@ def main():
             if historiales_filtrados:
                 for historial in historiales_filtrados:
                     with st.container():
-                        col1, col2, col3, col4, col5, col6 = st.columns([2, 1, 2, 1, 1, 1])
+                        col1, col2, col3, col4, col5, col6, col7 = st.columns([2, 1, 2, 1, 1, 1, 1])
                         
                         with col1:
                             st.write(f"**{historial['mascota_nombre']}** ({historial['mascota_raza']})")
@@ -281,7 +281,13 @@ def main():
                             if st.button("🗑️", key=f"eliminar_{historial['id']}"):
                                 st.session_state['historial_confirmar_eliminar'] = historial
                                 st.rerun()
-                        
+                        with col7:
+                            if st.button("✏️", key=f"editar_{historial['id']}"):
+                                # Obtener historial completo (con tratamientos)
+                                historial_completo = obtener_historial_completo(historial['id'])
+                                st.session_state['historial_editar'] = historial_completo
+                                st.session_state['mostrar_formulario_historial'] = True
+                                st.rerun()
                         st.divider()
             else:
                 st.info("No se encontraron historiales con los filtros aplicados.")

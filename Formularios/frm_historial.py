@@ -83,38 +83,88 @@ def formulario_nuevo_historial(historial_data=None):
     
     if historial_data and historial_data.get('tratamientos'):
         st.session_state.tratamientos = historial_data['tratamientos']
-    
-    # Formulario para agregar tratamiento
-    with st.expander("➕ Agregar Tratamiento", expanded=False):
-        with st.form("form_tratamiento"):
-            col1, col2 = st.columns(2)
-            with col1:
-                nombre_tratamiento = st.text_input("Nombre del tratamiento")
-                dosis = st.text_input("Dosis")
-                fecha_inicio = st.date_input("Fecha de inicio", value=date.today())
-            with col2:
-                frecuencia = st.text_input("Frecuencia")
-                duracion = st.text_input("Duración")
-                fecha_fin = st.date_input("Fecha de fin", value=date.today())
-            
-            observaciones_tratamiento = st.text_area("Observaciones del tratamiento")
-            
-            if st.form_submit_button("Agregar Tratamiento"):
-                if nombre_tratamiento.strip():
-                    nuevo_tratamiento = {
-                        'nombre_tratamiento': nombre_tratamiento,
-                        'dosis': dosis,
-                        'frecuencia': frecuencia,
-                        'duracion': duracion,
-                        'observaciones': observaciones_tratamiento,
-                        'fecha_inicio': fecha_inicio,
-                        'fecha_fin': fecha_fin
-                    }
-                    st.session_state.tratamientos.append(nuevo_tratamiento)
-                    st.success("✅ Tratamiento agregado")
-                    st.rerun()
-                else:
-                    st.error("❌ El nombre del tratamiento es obligatorio")
+
+    # Estado para edición de tratamiento
+    if 'tratamiento_editar_idx' not in st.session_state:
+        st.session_state.tratamiento_editar_idx = None
+    if 'tratamiento_editar_data' not in st.session_state:
+        st.session_state.tratamiento_editar_data = None
+
+    # Formulario para agregar o editar tratamiento
+    if st.session_state.tratamiento_editar_idx is not None:
+        idx = st.session_state.tratamiento_editar_idx
+        data = st.session_state.tratamiento_editar_data or st.session_state.tratamientos[idx]
+        with st.expander("✏️ Editar Tratamiento", expanded=True):
+            with st.form("form_editar_tratamiento"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    nombre_tratamiento = st.text_input("Nombre del tratamiento", value=data.get('nombre_tratamiento', ''))
+                    dosis = st.text_input("Dosis", value=data.get('dosis', ''))
+                    fecha_inicio = st.date_input("Fecha de inicio", value=data.get('fecha_inicio', date.today()))
+                with col2:
+                    frecuencia = st.text_input("Frecuencia", value=data.get('frecuencia', ''))
+                    duracion = st.text_input("Duración", value=data.get('duracion', ''))
+                    fecha_fin = st.date_input("Fecha de fin", value=data.get('fecha_fin', date.today()))
+                observaciones_tratamiento = st.text_area("Observaciones del tratamiento", value=data.get('observaciones', ''))
+                if st.form_submit_button("Actualizar Tratamiento"):
+                    if nombre_tratamiento.strip():
+                        st.session_state.tratamientos[idx] = {
+                            'nombre_tratamiento': nombre_tratamiento,
+                            'dosis': dosis,
+                            'frecuencia': frecuencia,
+                            'duracion': duracion,
+                            'observaciones': observaciones_tratamiento,
+                            'fecha_inicio': fecha_inicio,
+                            'fecha_fin': fecha_fin
+                        }
+                        st.session_state.tratamiento_editar_idx = None
+                        st.session_state.tratamiento_editar_data = None
+                        st.success("✅ Tratamiento actualizado")
+                        st.rerun()
+                    else:
+                        st.session_state.tratamiento_editar_data = {
+                            'nombre_tratamiento': nombre_tratamiento,
+                            'dosis': dosis,
+                            'frecuencia': frecuencia,
+                            'duracion': duracion,
+                            'observaciones': observaciones_tratamiento,
+                            'fecha_inicio': fecha_inicio,
+                            'fecha_fin': fecha_fin
+                        }
+                        st.error("❌ El nombre del tratamiento es obligatorio")
+            if st.button("Cancelar edición de tratamiento"):
+                st.session_state.tratamiento_editar_idx = None
+                st.session_state.tratamiento_editar_data = None
+                st.rerun()
+    else:
+        with st.expander("➕ Agregar Tratamiento", expanded=False):
+            with st.form("form_tratamiento"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    nombre_tratamiento = st.text_input("Nombre del tratamiento")
+                    dosis = st.text_input("Dosis")
+                    fecha_inicio = st.date_input("Fecha de inicio", value=date.today())
+                with col2:
+                    frecuencia = st.text_input("Frecuencia")
+                    duracion = st.text_input("Duración")
+                    fecha_fin = st.date_input("Fecha de fin", value=date.today())
+                observaciones_tratamiento = st.text_area("Observaciones del tratamiento")
+                if st.form_submit_button("Agregar Tratamiento"):
+                    if nombre_tratamiento.strip():
+                        nuevo_tratamiento = {
+                            'nombre_tratamiento': nombre_tratamiento,
+                            'dosis': dosis,
+                            'frecuencia': frecuencia,
+                            'duracion': duracion,
+                            'observaciones': observaciones_tratamiento,
+                            'fecha_inicio': fecha_inicio,
+                            'fecha_fin': fecha_fin
+                        }
+                        st.session_state.tratamientos.append(nuevo_tratamiento)
+                        st.success("✅ Tratamiento agregado")
+                        st.rerun()
+                    else:
+                        st.error("❌ El nombre del tratamiento es obligatorio")
 
     # Mostrar tratamientos agregados
     if st.session_state.tratamientos:
@@ -126,8 +176,9 @@ def formulario_nuevo_historial(historial_data=None):
                 st.write(f"*{tratamiento['observaciones']}*")
             with col2:
                 if st.button("✏️", key=f"editar_trat_{i}"):
-                    # Aquí se podría implementar edición de tratamientos
-                    pass
+                    st.session_state.tratamiento_editar_idx = i
+                    st.session_state.tratamiento_editar_data = None
+                    st.rerun()
             with col3:
                 if st.button("🗑️", key=f"eliminar_trat_{i}"):
                     st.session_state.tratamientos.pop(i)
