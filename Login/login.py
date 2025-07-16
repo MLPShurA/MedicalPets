@@ -121,9 +121,12 @@ def login():
                         st.session_state['usuario'] = user_data['nombre_usuario']
                         st.session_state['rol'] = user_data['rol']
                         st.session_state['logueado'] = True
-                        st.success("✅ Inicio de sesión correcto")
+                        st.success("")
+                        st.markdown('<div style="color:#111; font-size:1.1rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">✅ Inicio de sesión correcto</div>', unsafe_allow_html=True)
                         st.rerun()
                     else:
-                        st.error("❌ Usuario o contraseña incorrectos")
+                        st.error("")
+                        st.markdown('<div style="color:#111; font-size:1.1rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">❌ Usuario o contraseña no existe, intente de nuevo</div>', unsafe_allow_html=True)
     else:
-        st.success(f"Bienvenido, {st.session_state['usuario']}")
+        st.success("")
+        st.markdown(f'<div style="color:#111; font-size:1.1rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">Bienvenido, {st.session_state["usuario"]}</div>', unsafe_allow_html=True)

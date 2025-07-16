@@ -38,7 +38,8 @@ def main():
 
     elif st.session_state['usuario_confirmar_eliminar']:
         usuario = st.session_state['usuario_confirmar_eliminar']
-        st.warning(f"¿Estás seguro que deseas eliminar al usuario **{usuario['nombres']}**?")
+        st.warning("")
+        st.markdown(f'<div style="color:#111; font-size:1.15rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">¿Estás seguro que deseas eliminar al usuario <b>{usuario["nombres"]}</b>?</div>', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             if st.button("❌ Cancelar"):

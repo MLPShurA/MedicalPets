@@ -142,7 +142,8 @@ def main():
     # Confirmación de eliminación
     elif st.session_state['historial_confirmar_eliminar']:
         historial = st.session_state['historial_confirmar_eliminar']
-        st.warning(f"¿Estás seguro que deseas eliminar el historial de **{historial['mascota_nombre']}** del {historial['fecha']}?")
+        st.warning("")
+        st.markdown(f'<div style="color:#111; font-size:1.15rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">¿Estás seguro que deseas eliminar el historial de <b>{historial["mascota_nombre"]}</b> del {historial["fecha"]}?</div>', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             if st.button("❌ Cancelar"):
@@ -278,15 +279,15 @@ def main():
                                 st.rerun()
                         
                         with col6:
-                            if st.button("🗑️", key=f"eliminar_{historial['id']}"):
-                                st.session_state['historial_confirmar_eliminar'] = historial
-                                st.rerun()
-                        with col7:
                             if st.button("✏️", key=f"editar_{historial['id']}"):
                                 # Obtener historial completo (con tratamientos)
                                 historial_completo = obtener_historial_completo(historial['id'])
                                 st.session_state['historial_editar'] = historial_completo
                                 st.session_state['mostrar_formulario_historial'] = True
+                                st.rerun()
+                        with col7:
+                            if st.button("🗑️", key=f"eliminar_{historial['id']}"):
+                                st.session_state['historial_confirmar_eliminar'] = historial
                                 st.rerun()
                         st.divider()
             else:

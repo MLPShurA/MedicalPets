@@ -118,13 +118,29 @@ if 'usuario' not in st.session_state:
     login()
     st.stop()
 
-col1, col2 = st.columns([0.9, 0.1])
-with col2:
+# Botón de cerrar sesión en la parte superior derecha
+if 'confirmar_logout' not in st.session_state:
+    st.session_state['confirmar_logout'] = False
+logout_col, _ = st.columns([0.93, 0.07])
+with logout_col:
     if st.button("Cerrar sesión", key="logout_btn", type="primary"):
-        for k in list(st.session_state.keys()):
-            del st.session_state[k]
-        st.success("Sesión cerrada correctamente")
-        st.rerun()
+        st.session_state['confirmar_logout'] = True
+
+# Mostrar confirmación de cierre de sesión en el área principal (centrado y grande)
+if st.session_state['confirmar_logout']:
+    st.warning("", icon=None)
+    st.markdown('<div style="color:#111; font-size:1.3rem; font-weight:bold; margin-top:-2.5em; margin-bottom:1.5em;">¿Está seguro que desea cerrar sesión?</div>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("❌ Cancelar", key="logout_cancelar"):
+            st.session_state['confirmar_logout'] = False
+            st.rerun()
+    with col2:
+        if st.button("✅ Cerrar sesión", key="logout_confirmar"):
+            for k in list(st.session_state.keys()):
+                del st.session_state[k]
+            st.success("Sesión cerrada correctamente")
+            st.rerun()
 
 with st.sidebar:
     st.markdown(
