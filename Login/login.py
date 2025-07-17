@@ -3,7 +3,7 @@ from db import get_connection
 from Login.security import verify_password
 import base64
 
-def verificar_usuario(usuario, contraseña):
+def verificar_usuario(usuario, contrasena):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM usuarios WHERE nombre_usuario = %s", (usuario,))
@@ -12,9 +12,9 @@ def verificar_usuario(usuario, contraseña):
     conn.close()
     if resultado:
         if resultado.get('contrasena_hash'):
-            if verify_password(contraseña, resultado['contrasena_hash']):
+            if verify_password(contrasena, resultado['contrasena_hash']):
                 return resultado
-        elif contraseña == resultado.get('contrasena'):
+        elif contrasena == resultado.get('contrasena'):
             return resultado
     return None
 
