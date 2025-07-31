@@ -415,10 +415,10 @@ class HistorialService:
                 tratamiento = Tratamiento(
                     id=data['id'],
                     id_historial=historial_id,
-                    nombre_tratamiento=data['nombre_tratamiento'],
+                    nombre=data['nombre_tratamiento'],
                     dosis=data['dosis'],
                     frecuencia=data['frecuencia'],
-                    duracion=data['duracion'],
+                    duracion_dias=0,  # Campo requerido por la nueva clase
                     observaciones=data['observaciones'],
                     fecha_inicio=data['fecha_inicio'],
                     fecha_fin=data['fecha_fin']

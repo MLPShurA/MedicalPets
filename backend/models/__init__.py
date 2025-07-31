@@ -2,7 +2,7 @@
 from .usuario import Usuario
 from .mascota import Mascota
 from .cita import Cita
-from .historial import HistorialMedico
+from .historial import HistorialClinico
 from .tratamiento import Tratamiento
 
-__all__ = ['Usuario', 'Mascota', 'Cita', 'HistorialMedico', 'Tratamiento']
+__all__ = ['Usuario', 'Mascota', 'Cita', 'HistorialClinico', 'Tratamiento']

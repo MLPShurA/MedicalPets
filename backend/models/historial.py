@@ -3,48 +3,8 @@ from typing import Optional, List
 from datetime import datetime, date
 from decimal import Decimal
 
-@dataclass
-class Tratamiento:
-    """Modelo de datos para Tratamiento"""
-    
-    id: Optional[int] = None
-    id_historial: Optional[int] = None
-    nombre_tratamiento: str = ""
-    dosis: str = ""
-    frecuencia: str = ""
-    duracion: str = ""
-    observaciones: str = ""
-    fecha_inicio: Optional[date] = None
-    fecha_fin: Optional[date] = None
-    
-    def to_dict(self) -> dict:
-        """Convierte el modelo a diccionario"""
-        return {
-            'id': self.id,
-            'id_historial': self.id_historial,
-            'nombre_tratamiento': self.nombre_tratamiento,
-            'dosis': self.dosis,
-            'frecuencia': self.frecuencia,
-            'duracion': self.duracion,
-            'observaciones': self.observaciones,
-            'fecha_inicio': self.fecha_inicio.isoformat() if self.fecha_inicio else None,
-            'fecha_fin': self.fecha_fin.isoformat() if self.fecha_fin else None
-        }
-    
-    @classmethod
-    def from_dict(cls, data: dict) -> 'Tratamiento':
-        """Crea una instancia desde un diccionario"""
-        return cls(
-            id=data.get('id'),
-            id_historial=data.get('id_historial'),
-            nombre_tratamiento=data.get('nombre_tratamiento', ''),
-            dosis=data.get('dosis', ''),
-            frecuencia=data.get('frecuencia', ''),
-            duracion=data.get('duracion', ''),
-            observaciones=data.get('observaciones', ''),
-            fecha_inicio=date.fromisoformat(data['fecha_inicio']) if data.get('fecha_inicio') else None,
-            fecha_fin=date.fromisoformat(data['fecha_fin']) if data.get('fecha_fin') else None
-        )
+# Importar la clase Tratamiento del módulo tratamiento
+from .tratamiento import Tratamiento
 
 @dataclass
 class HistorialClinico:
